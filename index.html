@@ -3,20 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Tra cứu đáp án</title>
+  <title>Tra cứu đáp án - lọc đơn giản</title>
   <style>
     * { box-sizing: border-box; }
-    body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background: #f4f7fb;
-      color: #1f2937;
-    }
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 24px;
-    }
+    body { margin: 0; font-family: Arial, Helvetica, sans-serif; background: #f4f7fb; color: #1f2937; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
     .hero, .filters, .card, .stats {
       background: #fff;
       border-radius: 18px;
@@ -36,11 +27,11 @@
     .filters { padding: 20px; margin-bottom: 20px; }
     .filter-grid {
       display: grid;
-      grid-template-columns: 140px 1.3fr 1fr 1fr;
+      grid-template-columns: 1fr;
       gap: 12px;
       margin-bottom: 14px;
     }
-    input, select, button {
+    input, button {
       width: 100%;
       padding: 12px 14px;
       border-radius: 12px;
@@ -54,6 +45,7 @@
       background: #7c3aed;
       color: #fff;
       font-weight: 600;
+      width: auto;
     }
     button.secondary {
       background: #eef2ff;
@@ -78,10 +70,7 @@
       color: white;
       border-color: #7c3aed;
     }
-    .list {
-      display: grid;
-      gap: 16px;
-    }
+    .list { display: grid; gap: 16px; }
     .card { padding: 20px; }
     .badges {
       display: flex;
@@ -100,6 +89,7 @@
     .badge.answer { background: #dcfce7; color: #166534; }
     .badge.type { background: #ede9fe; color: #5b21b6; }
     .badge.cat { background: #e0f2fe; color: #075985; }
+    .badge.set { background: #fef3c7; color: #92400e; }
     .question { font-size: 18px; font-weight: 700; margin: 0 0 14px; }
     .option {
       display: flex;
@@ -137,7 +127,6 @@
       box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
     }
     @media (max-width: 900px) {
-      .filter-grid { grid-template-columns: 1fr; }
       .stats-wrap { grid-template-columns: 1fr; }
       h1 { font-size: 26px; }
     }
@@ -147,7 +136,7 @@
   <div class="container">
     <div class="hero">
       <h1>Website tra cứu đáp án</h1>
-      <div class="muted">File HTML tĩnh để up lên GitHub Pages. Có bộ lọc theo số câu, từ khóa, nhóm nội dung, loại câu hỏi và đáp án.</div>
+      <div class="muted">Bản HTML chỉ giữ bộ lọc theo nội dung câu hỏi hoặc đáp án.</div>
       <div class="stats-wrap">
         <div class="stats"><div class="muted">Tổng số câu</div><strong id="totalCount">0</strong></div>
         <div class="stats"><div class="muted">Kết quả lọc</div><strong id="resultCount">0</strong></div>
@@ -156,14 +145,11 @@
 
     <div class="filters">
       <div class="filter-grid">
-        <input id="questionNo" type="text" placeholder="Số câu" />
         <input id="keyword" type="text" placeholder="Tìm theo nội dung câu hỏi hoặc đáp án..." />
-        <select id="category"></select>
-        <select id="type"></select>
       </div>
       <div class="answers" id="answerFilters"></div>
       <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
-        <button id="resetBtn" class="secondary" style="width:auto;">Xóa bộ lọc</button>
+        <button id="resetBtn" class="secondary">Xóa bộ lọc</button>
       </div>
     </div>
 
@@ -172,42 +158,55 @@
 
   <script>
     const questions = [
-      { id: 1, category: "ATTT", type: "Một đáp án", question: "Những hành động nào sau đây là đúng khi sử dụng thư điện tử cá nhân", options: ["Gửi các nội dung mang tính chất quảng cáo, không liên quan đến công việc", "Sử dụng địa chỉ thư điện tử của VPS để tạo account facebook", "Truy cập vào hộp thư của người khác để xử lý công việc", "Không có đáp án đúng"], correct: ["D"] },
-      { id: 2, category: "ATTT", type: "Một đáp án", question: "Nguy cơ nào dưới đây dẫn tới mật khẩu bị lộ", options: ["Tự bản thân ghi nhớ mật khẩu", "Ghi mật khẩu vào giấy và dán lên màn hình máy tính/ bàn làm việc", "Sử dụng các ứng dụng quản lý mật khẩu an toàn", "Ghi nhớ mật khẩu vào sổ tay cá nhân và cất ở nơi đảm bảo an toàn."], correct: ["B"] },
-      { id: 3, category: "ATTT", type: "Một đáp án", question: "Khi nào người dùng nên đổi mật khẩu", options: ["Trong lần truy cập đầu tiên hoặc sau khi được bàn giao mật khẩu tạm thời từ IT", "Khi có dấu hiệu về việc lộ mật khẩu", "Tất cả các trường hợp trên", "Nên đổi mật khẩu định kỳ tối thiểu 30 ngày/lần"], correct: ["C"] },
-      { id: 4, category: "ATTT", type: "Một đáp án", question: "Máy tính VPS được phép kết nối Internet sử dụng các cách thức nào dưới đây?", options: ["Lắp đặt bổ sung card wifi hoặc USB wifi để kết nối wifi vào Internet", "Lắp USB DCOM và kết nối vào Internet sử dụng SIM data", "Kết nối với điện thoại di động và sử dụng chức năng chia sẻ Internet của điện thoại để vào Internet", "Cả 3 phương án trên đều không được phép"], correct: ["D"] },
-      { id: 5, category: "ATTT", type: "Một đáp án", question: "Khi nào cá nhân được cấp tài khoản phục vụ công việc:", options: ["Khi cá nhân đã ký cam kết tuân thủ Quy chế bảo mật thông tin", "Khi cá nhân có nhu cầu để phục vụ công việc", "Khi cá nhân đã ký hợp đồng lao động", "Không phương án nào đúng"], correct: ["B"] },
-      { id: 6, category: "ATTT", type: "Một đáp án", question: "Mệnh đề nào sau đây là sai khi nói về rank ATTT", options: ["Trong 1 tháng không giới hạn các mức cộng/trừ rank", "Điểm rank sẽ được làm tròn lên tại thời điểm đánh giá, phần lẻ sẽ tính lũy kế cho tháng sau", "Rank ATTT được khởi tạo lại giá trị định kỳ hàng tháng", "Kỳ tính rank được tính từ ngày 21 tháng trước đến ngày 20 của tháng hiện tại."], correct: ["C"] },
-      { id: 7, category: "ATTT", type: "Một đáp án", question: "Social Engineering là gì?", options: ["Một phương pháp bảo mật thông tin", "Một cuộc tấn công mạng vào hệ thống", "Tấn công tâm lý để lấy thông tin từ con người", "Một loại phần mềm độc hại"], correct: ["C"] },
-      { id: 8, category: "ATTT", type: "Một đáp án", question: "Stealer malware là gì?", options: ["Phần mềm giúp bạn bảo vệ mật khẩu", "Phần mềm gián điệp đánh cắp thông tin nhạy cảm", "Phần mềm chống virus", "Phần mềm tự động cập nhật"], correct: ["B"] },
-      { id: 9, category: "ATTT", type: "Một đáp án", question: "Đâu là email có khả năng là email giả mạo cao nhất?", options: ["Được gửi từ địa chỉ mail công ty đối thủ của VPS", "Được gửi từ một địa chỉ mail gần giống với một địa chỉ quen thuộc", "Được gửi từ một địa chỉ mail ở nước ngoài", "Được gửi từ gmail"], correct: ["B"] },
-      { id: 10, category: "ATTT", type: "Một đáp án", question: "Đâu là cách để report mail phishing tới BP Bảo mật", options: ["Sử dụng Phish alert", "Forward mail tới attt@vps.com.vn", "Xóa mail, chuyển vào thùng rác", "Đáp án 1 và 2"], correct: ["D"] },
-      { id: 11, category: "ATTT", type: "Một đáp án", question: "Baiting là gì? (Chọn đáp án sai)", options: ["Để bẫy USB hoặc thiết bị chứa phần mềm độc hại ở chỗ công cộng", "Cung cấp phần mềm miễn phí để nạn nhân nhấp hoặc tải xuống", "Tặng quà giá trị cao để nạn nhân tự cài đặt phần mềm", "Gửi email chứa mã độc đến nạn nhân"], correct: ["D"] },
-      { id: 12, category: "ATTT", type: "Nhiều đáp án", question: "Làm thế nào bạn có thể báo cáo phishing cho bộ phận bảo mật? (Chọn tất cả đáp án đúng)", options: ["Sử dụng nút 'Report Phishing' trong email client", "Gửi email đến địa chỉ attt@vps.com.vn", "Xóa email hoặc di chuyển vào thư rác", "Chia sẻ email với tất cả đồng nghiệp để cảnh báo"], correct: ["A", "B"] },
-      { id: 13, category: "ATTT", type: "Một đáp án", question: "CEO fraud (Business Email Compromise) là gì?", options: ["Một cuộc tấn công mã hóa dữ liệu để yêu cầu tiền chuộc", "Giả mạo danh tính của người quản lý cao cấp qua email để yêu cầu chuyển tiền hoặc dữ liệu nhạy cảm", "Một loại virus để làm hỏng hệ thống email", "Một chiến dịch nhắm đến những nhân sự cấp cao (C-level)"], correct: ["B"] },
-      { id: 14, category: "ATTT", type: "Nhiều đáp án", question: "Bạn nhận được tin nhắn SMS từ Ngân hàng yêu cầu kiểm tra tài khoản vì hoạt động lạ. Bạn nên làm gì? (Chọn tất cả đáp án đúng)", options: ["Không nhấp link trong tin nhắn", "Gọi ngân hàng qua số điện thoại trên website chính thức", "Báo cáo tin nhắn lạ cho ngân hàng", "Nhấp link để kiểm tra tài khoản ngay lập tức"], correct: ["A", "B", "C"] },
-      { id: 15, category: "ATTT", type: "Một đáp án", question: "Nhận định nào sau đây là sai đối với URL độc hại", options: ["URL rút gọn không rõ đích đến", "URL có ký tự lạ", "URL bắt đầu với https:// và tên miền trùng khớp với website chính thức", "URL gần giống với một địa chỉ quen thuộc"], correct: ["C"] },
-      { id: 16, category: "ATTT", type: "Một đáp án", question: "Tình huống: Bạn đứng ở cửa lối vào khu vực làm việc. Khi bạn hỏi, họ nói 'Tôi là nhân viên mới, chưa có dữ liệu mở khóa, nhờ bạn mở cửa giúp'. Bạn nên làm gì?", options: ["Mở cửa giúp họ vì họ có thể hẳn là vào", "Yêu cầu họ đứng lại, xác minh danh tính qua bộ phận HR trước khi cho vào", "Đi cùng họ vào phòng để theo dõi", "Nói họ cần liên hệ với quản lý nhưng cho vào trước"], correct: ["B"] },
-      { id: 17, category: "ISO 27001", type: "Một đáp án", question: "Các biện pháp kiểm soát trong Annex A được chia thành mấy nhóm?", options: ["3", "4", "5", "6"], correct: ["B"] },
-      { id: 18, category: "ISO 27001", type: "Một đáp án", question: "ISO/IEC 27001:2022 là tiêu chuẩn quốc tế về lĩnh vực nào?", options: ["Quản lý chất lượng", "Quản lý môi trường", "Hệ thống quản lý an toàn thông tin tin (ISMS)", "Quản lý tài chính"], correct: ["C"] },
-      { id: 19, category: "DLP", type: "Một đáp án", question: "Câu hỏi tình huống: Trong quá trình trao đổi với đối tác qua email theo nhiệm vụ được phân công, nhân viên A nhận được cảnh báo vi phạm từ hệ thống DLP. A phải làm gì?", options: ["Viết biên bản giải trình theo MBO4 và xin phê duyệt của trưởng đơn vị.", "Bỏ qua cảnh báo", "Tiến hành trao đổi với trưởng đơn vị và thực hiện đăng ký bổ sung quyền sử dụng thông tin.", "Gửi yêu cầu cho ITHelp để tạm dừng phần mềm DLP trong lúc gửi mail phục vụ công việc"], correct: ["A"] },
-      { id: 20, category: "DLP", type: "Một đáp án", question: "Câu hỏi tình huống: Nhân viên A chưa được đăng ký quyền sử dụng thông tin và thực hiện gửi 1 file đính kèm có mức độ Bảo Mật qua email cho một CBNV thuộc phòng Nhân sự. Câu trả lời nào dưới đây là đúng?", options: ["Hệ thống DLP sẽ tiến hành ngăn chặn và có cảnh báo", "Hệ thống DLP cho phép gửi mail như bình thường", "Hệ thống DLP cho phép gửi và có cảnh báo", "Hệ thống DLP không kiểm soát việc gửi mail"], correct: ["B"] },
-      { id: 21, category: "Phân loại thông tin", type: "Một đáp án", question: "Thông tin nào sau đây không được phép chia sẻ trên ổ chung của VPS", options: ["Thông tin phân loại là bảo mật", "Thông tin cá nhân (KH & CBNV)", "Thông tin nội bộ liên quan đến vận hành nghiệp vụ của từng phòng ban", "Tất cả các thông tin trên"], correct: ["D"] },
-      { id: 22, category: "Phân loại thông tin", type: "Một đáp án", question: "Dữ liệu được phép phân quyền truy cập tới những cá nhân nào sau đây:", options: ["Theo danh sách của Bộ phận đề xuất", "Theo danh sách đề xuất của Khối nguồn lực Nhân sự", "Theo xác nhận của Phòng An ninh thông tin", "Chỉ được phép phân quyền tới người có nhu cầu hợp lệ để phục vụ mục đích công việc"], correct: ["D"] },
-      { id: 23, category: "Phân loại thông tin", type: "Một đáp án", question: "Ai có thẩm quyền phê duyệt việc chuyển đổi nhóm thông tin sang Công khai", options: ["Tổng Giám đốc hoặc Người được Tổng Giám đốc ủy quyền", "Trưởng đơn vị hoặc người được Trưởng đơn vị ủy quyền", "Trưởng phòng KSNB", "Tất cả CBNV VPS"], correct: ["A"] },
-      { id: 24, category: "Thiết bị cá nhân", type: "Một đáp án", question: "Hành vi nào sau đây bị nghiêm cấm khi sử dụng thiết bị cá nhân kết nối vào hệ thống CNTT của VPS", options: ["Sử dụng WIFI miễn phí tại các quán café, trung tâm thương mại", "Tải, cài đặt các phần mềm Crack, không có bản quyền trên thiết bị cá nhân", "Làm việc ở nơi công cộng như quán café, trung tâm thương mại. Màn hình máy tính không được che chắn, người khác có thể dễ dàng xem được nội dung trên màn hình", "Tất cả các đáp án trên"], correct: ["D"] },
-      { id: 25, category: "ATTT", type: "Một đáp án", question: "Tình huống nào gây mất an ninh thông tin?", options: ["Khóa (lock) máy tính khi rời vị trí.", "Hủy tài liệu bằng máy hủy chuyên dụng.", "Để tài liệu trên bàn làm việc", "Không đáp án nào đúng"], correct: ["C"] },
-      { id: 26, category: "ATTT", type: "Một đáp án", question: "Cá nhân vi phạm ATTT sẽ phải chịu hình thức xử lý kỷ luật nào ?", options: ["Nếu không hậu quả thì không bị xử lý kỷ luật", "Theo quy định của VPS hoặc các trách nhiệm dân sự hay pháp lý có liên quan", "Theo đề xuất của Trưởng đơn vị", "Theo quyết định của Phòng An ninh thông tin"], correct: ["B"] },
-      { id: 27, category: "ATTT", type: "Một đáp án", question: "Nhân viên có được phép tiết lộ, mua bán trái phép dữ liệu của VPS không?", options: ["Không", "Được phép trong một số tình huống", "Được", "Tất cả phương án trên đều sai"], correct: ["A"] },
-      { id: 28, category: "Thiết bị mạng", type: "Một đáp án", question: "Thiết bị ngoại vi nào được phép cắm vào mạng nội bộ VPS:", options: ["Thiết bị phát sóng wifi", "Thiết bị thu sóng wifi", "Các thiết bị do Phòng ANTT được phê duyệt, lắp đặt", "Cả 3 phương án trên đều đúng"], correct: ["C"] },
-      { id: 29, category: "ATTT", type: "Một đáp án", question: "Nhận định nào sau đây là ĐÚNG", options: ["Report TẤT CẢ email phishing thuộc các chiến dịch mô phỏng nhận được trong kỳ về Phòng An ninh thông tin được cộng 0.5 điểm rank", "Mỗi report email phishing thuộc các chiến dịch mô phỏng nhận được trong kỳ về Phòng An ninh thông tin được cộng 0.5 điểm rank", "Không tham gia hoặc không hoàn thành theo quy định các khóa ATTT trong kỳ không ảnh hưởng đến rank", "Báo cáo về hành vi vi phạm ATTT trong VPS được cộng 0.5 điểm"], correct: ["A"] },
-      { id: 30, category: "ATTT", type: "Một đáp án", question: "Hiện tại rank ATTT của bạn đang ở mức 1, điều này có nghĩa là gì ?", options: ["Nhận thức ATTT ở mức thấp, CBNV có khả năng bị tấn công khai thác ở mức rất cao", "Nhận thức ATTT ở mức trung bình, CBNV có khả năng bị tấn công khai thác ở mức cao", "Nhận thức ATTT ở mức tốt, CBNV có khả năng bị tấn công khai thác ở mức thấp", "Không có nhận thức về ATTT, CBNV có lỗ hổng ATTT của VPS"], correct: ["D"] }
+      { id: 1, set: "Bộ cũ", category: "ATTT", type: "Một đáp án", question: "Những hành động nào sau đây là đúng khi sử dụng thư điện tử cá nhân", options: ["Gửi các nội dung mang tính chất quảng cáo, không liên quan đến công việc", "Sử dụng địa chỉ thư điện tử của VPS để tạo account facebook", "Truy cập vào hộp thư của người khác để xử lý công việc", "Không có đáp án đúng"], correct: ["D"] },
+      { id: 2, set: "Bộ cũ", category: "ATTT", type: "Một đáp án", question: "Nguy cơ nào dưới đây dẫn tới mật khẩu bị lộ", options: ["Tự bản thân ghi nhớ mật khẩu", "Ghi mật khẩu vào giấy và dán lên màn hình máy tính/ bàn làm việc", "Sử dụng các ứng dụng quản lý mật khẩu an toàn", "Ghi nhớ mật khẩu vào sổ tay cá nhân và cất ở nơi đảm bảo an toàn."], correct: ["B"] },
+      { id: 3, set: "Bộ cũ", category: "ATTT", type: "Một đáp án", question: "Khi nào người dùng nên đổi mật khẩu", options: ["Trong lần truy cập đầu tiên hoặc sau khi được bàn giao mật khẩu tạm thời từ IT", "Khi có dấu hiệu về việc lộ mật khẩu", "Tất cả các trường hợp trên", "Nên đổi mật khẩu định kỳ tối thiểu 30 ngày/lần"], correct: ["C"] },
+      { id: 4, set: "Bộ cũ", category: "ATTT", type: "Một đáp án", question: "Máy tính VPS được phép kết nối Internet sử dụng các cách thức nào dưới đây?", options: ["Lắp đặt bổ sung card wifi hoặc USB wifi để kết nối wifi vào Internet", "Lắp USB DCOM và kết nối vào Internet sử dụng SIM data", "Kết nối với điện thoại di động và sử dụng chức năng chia sẻ Internet của điện thoại để vào Internet", "Cả 3 phương án trên đều không được phép"], correct: ["D"] },
+      { id: 5, set: "Bộ cũ", category: "ATTT", type: "Một đáp án", question: "Khi nào cá nhân được cấp tài khoản phục vụ công việc:", options: ["Khi cá nhân đã ký cam kết tuân thủ Quy chế bảo mật thông tin", "Khi cá nhân có nhu cầu để phục vụ công việc", "Khi cá nhân đã ký hợp đồng lao động", "Không phương án nào đúng"], correct: ["B"] },
+      { id: 6, set: "Bộ cũ", category: "ATTT", type: "Một đáp án", question: "Mệnh đề nào sau đây là sai khi nói về rank ATTT", options: ["Trong 1 tháng không giới hạn các mức cộng/trừ rank", "Điểm rank sẽ được làm tròn lên tại thời điểm đánh giá, phần lẻ sẽ tính lũy kế cho tháng sau", "Rank ATTT được khởi tạo lại giá trị định kỳ hàng tháng", "Kỳ tính rank được tính từ ngày 21 tháng trước đến ngày 20 của tháng hiện tại."], correct: ["C"] },
+      { id: 7, set: "Bộ cũ", category: "ATTT", type: "Một đáp án", question: "Social Engineering là gì?", options: ["Một phương pháp bảo mật thông tin", "Một cuộc tấn công mạng vào hệ thống", "Tấn công tâm lý để lấy thông tin từ con người", "Một loại phần mềm độc hại"], correct: ["C"] },
+      { id: 8, set: "Bộ cũ", category: "ATTT", type: "Một đáp án", question: "Stealer malware là gì?", options: ["Phần mềm giúp bạn bảo vệ mật khẩu", "Phần mềm gián điệp đánh cắp thông tin nhạy cảm", "Phần mềm chống virus", "Phần mềm tự động cập nhật"], correct: ["B"] },
+      { id: 9, set: "Bộ cũ", category: "ATTT", type: "Một đáp án", question: "Đâu là email có khả năng là email giả mạo cao nhất?", options: ["Được gửi từ địa chỉ mail công ty đối thủ của VPS", "Được gửi từ một địa chỉ mail gần giống với một địa chỉ quen thuộc", "Được gửi từ một địa chỉ mail ở nước ngoài", "Được gửi từ gmail"], correct: ["B"] },
+      { id: 10, set: "Bộ cũ", category: "ATTT", type: "Một đáp án", question: "Đâu là cách để report mail phishing tới BP Bảo mật", options: ["Sử dụng Phish alert", "Forward mail tới attt@vps.com.vn", "Xóa mail, chuyển vào thùng rác", "Đáp án 1 và 2"], correct: ["D"] },
+      { id: 11, set: "Bộ cũ", category: "ATTT", type: "Một đáp án", question: "Baiting là gì? (Chọn đáp án sai)", options: ["Để bẫy USB hoặc thiết bị chứa phần mềm độc hại ở chỗ công cộng", "Cung cấp phần mềm miễn phí để nạn nhân nhấp hoặc tải xuống", "Tặng quà giá trị cao để nạn nhân tự cài đặt phần mềm", "Gửi email chứa mã độc đến nạn nhân"], correct: ["D"] },
+      { id: 12, set: "Bộ cũ", category: "ATTT", type: "Nhiều đáp án", question: "Làm thế nào bạn có thể báo cáo phishing cho bộ phận bảo mật? (Chọn tất cả đáp án đúng)", options: ["Sử dụng nút 'Report Phishing' trong email client", "Gửi email đến địa chỉ attt@vps.com.vn", "Xóa email hoặc di chuyển vào thư rác", "Chia sẻ email với tất cả đồng nghiệp để cảnh báo"], correct: ["A", "B"] },
+      { id: 13, set: "Bộ cũ", category: "ATTT", type: "Một đáp án", question: "CEO fraud (Business Email Compromise) là gì?", options: ["Một cuộc tấn công mã hóa dữ liệu để yêu cầu tiền chuộc", "Giả mạo danh tính của người quản lý cao cấp qua email để yêu cầu chuyển tiền hoặc dữ liệu nhạy cảm", "Một loại virus để làm hỏng hệ thống email", "Một chiến dịch nhắm đến những nhân sự cấp cao (C-level)"], correct: ["B"] },
+      { id: 14, set: "Bộ cũ", category: "ATTT", type: "Nhiều đáp án", question: "Bạn nhận được tin nhắn SMS từ Ngân hàng yêu cầu kiểm tra tài khoản vì hoạt động lạ. Bạn nên làm gì? (Chọn tất cả đáp án đúng)", options: ["Không nhấp link trong tin nhắn", "Gọi ngân hàng qua số điện thoại trên website chính thức", "Báo cáo tin nhắn lạ cho ngân hàng", "Nhấp link để kiểm tra tài khoản ngay lập tức"], correct: ["A", "B", "C"] },
+      { id: 15, set: "Bộ cũ", category: "ATTT", type: "Một đáp án", question: "Nhận định nào sau đây là sai đối với URL độc hại", options: ["URL rút gọn không rõ đích đến", "URL có ký tự lạ", "URL bắt đầu với https:// và tên miền trùng khớp với website chính thức", "URL gần giống với một địa chỉ quen thuộc"], correct: ["C"] },
+      { id: 16, set: "Bộ cũ", category: "ATTT", type: "Một đáp án", question: "Tình huống: Bạn đứng ở cửa lối vào khu vực làm việc. Khi bạn hỏi, họ nói 'Tôi là nhân viên mới, chưa có dữ liệu mở khóa, nhờ bạn mở cửa giúp'. Bạn nên làm gì?", options: ["Mở cửa giúp họ vì họ có thể hẳn là vào", "Yêu cầu họ đứng lại, xác minh danh tính qua bộ phận HR trước khi cho vào", "Đi cùng họ vào phòng để theo dõi", "Nói họ cần liên hệ với quản lý nhưng cho vào trước"], correct: ["B"] },
+      { id: 17, set: "Bộ cũ", category: "ISO 27001", type: "Một đáp án", question: "Các biện pháp kiểm soát trong Annex A được chia thành mấy nhóm?", options: ["3", "4", "5", "6"], correct: ["B"] },
+      { id: 18, set: "Bộ cũ", category: "ISO 27001", type: "Một đáp án", question: "ISO/IEC 27001:2022 là tiêu chuẩn quốc tế về lĩnh vực nào?", options: ["Quản lý chất lượng", "Quản lý môi trường", "Hệ thống quản lý an toàn thông tin tin (ISMS)", "Quản lý tài chính"], correct: ["C"] },
+      { id: 19, set: "Bộ cũ", category: "DLP", type: "Một đáp án", question: "Câu hỏi tình huống: Trong quá trình trao đổi với đối tác qua email theo nhiệm vụ được phân công, nhân viên A nhận được cảnh báo vi phạm từ hệ thống DLP. A phải làm gì?", options: ["Viết biên bản giải trình theo MBO4 và xin phê duyệt của trưởng đơn vị.", "Bỏ qua cảnh báo", "Tiến hành trao đổi với trưởng đơn vị và thực hiện đăng ký bổ sung quyền sử dụng thông tin.", "Gửi yêu cầu cho ITHelp để tạm dừng phần mềm DLP trong lúc gửi mail phục vụ công việc"], correct: ["A"] },
+      { id: 20, set: "Bộ cũ", category: "DLP", type: "Một đáp án", question: "Câu hỏi tình huống: Nhân viên A chưa được đăng ký quyền sử dụng thông tin và thực hiện gửi 1 file đính kèm có mức độ Bảo Mật qua email cho một CBNV thuộc phòng Nhân sự. Câu trả lời nào dưới đây là đúng?", options: ["Hệ thống DLP sẽ tiến hành ngăn chặn và có cảnh báo", "Hệ thống DLP cho phép gửi mail như bình thường", "Hệ thống DLP cho phép gửi và có cảnh báo", "Hệ thống DLP không kiểm soát việc gửi mail"], correct: ["B"] },
+      { id: 21, set: "Bộ cũ", category: "Phân loại thông tin", type: "Một đáp án", question: "Thông tin nào sau đây không được phép chia sẻ trên ổ chung của VPS", options: ["Thông tin phân loại là bảo mật", "Thông tin cá nhân (KH & CBNV)", "Thông tin nội bộ liên quan đến vận hành nghiệp vụ của từng phòng ban", "Tất cả các thông tin trên"], correct: ["D"] },
+      { id: 22, set: "Bộ cũ", category: "Phân loại thông tin", type: "Một đáp án", question: "Dữ liệu được phép phân quyền truy cập tới những cá nhân nào sau đây:", options: ["Theo danh sách của Bộ phận đề xuất", "Theo danh sách đề xuất của Khối nguồn lực Nhân sự", "Theo xác nhận của Phòng An ninh thông tin", "Chỉ được phép phân quyền tới người có nhu cầu hợp lệ để phục vụ mục đích công việc"], correct: ["D"] },
+      { id: 23, set: "Bộ cũ", category: "Phân loại thông tin", type: "Một đáp án", question: "Ai có thẩm quyền phê duyệt việc chuyển đổi nhóm thông tin sang Công khai", options: ["Tổng Giám đốc hoặc Người được Tổng Giám đốc ủy quyền", "Trưởng đơn vị hoặc người được Trưởng đơn vị ủy quyền", "Trưởng phòng KSNB", "Tất cả CBNV VPS"], correct: ["A"] },
+      { id: 24, set: "Bộ cũ", category: "Thiết bị cá nhân", type: "Một đáp án", question: "Hành vi nào sau đây bị nghiêm cấm khi sử dụng thiết bị cá nhân kết nối vào hệ thống CNTT của VPS", options: ["Sử dụng WIFI miễn phí tại các quán café, trung tâm thương mại", "Tải, cài đặt các phần mềm Crack, không có bản quyền trên thiết bị cá nhân", "Làm việc ở nơi công cộng như quán café, trung tâm thương mại. Màn hình máy tính không được che chắn, người khác có thể dễ dàng xem được nội dung trên màn hình", "Tất cả các đáp án trên"], correct: ["D"] },
+      { id: 25, set: "Bộ cũ", category: "ATTT", type: "Một đáp án", question: "Tình huống nào gây mất an ninh thông tin?", options: ["Khóa (lock) máy tính khi rời vị trí.", "Hủy tài liệu bằng máy hủy chuyên dụng.", "Để tài liệu trên bàn làm việc", "Không đáp án nào đúng"], correct: ["C"] },
+      { id: 26, set: "Bộ cũ", category: "ATTT", type: "Một đáp án", question: "Cá nhân vi phạm ATTT sẽ phải chịu hình thức xử lý kỷ luật nào ?", options: ["Nếu không hậu quả thì không bị xử lý kỷ luật", "Theo quy định của VPS hoặc các trách nhiệm dân sự hay pháp lý có liên quan", "Theo đề xuất của Trưởng đơn vị", "Theo quyết định của Phòng An ninh thông tin"], correct: ["B"] },
+      { id: 27, set: "Bộ cũ", category: "ATTT", type: "Một đáp án", question: "Nhân viên có được phép tiết lộ, mua bán trái phép dữ liệu của VPS không?", options: ["Không", "Được phép trong một số tình huống", "Được", "Tất cả phương án trên đều sai"], correct: ["A"] },
+      { id: 28, set: "Bộ cũ", category: "Thiết bị mạng", type: "Một đáp án", question: "Thiết bị ngoại vi nào được phép cắm vào mạng nội bộ VPS:", options: ["Thiết bị phát sóng wifi", "Thiết bị thu sóng wifi", "Các thiết bị do Phòng ANTT được phê duyệt, lắp đặt", "Cả 3 phương án trên đều đúng"], correct: ["C"] },
+      { id: 29, set: "Bộ cũ", category: "ATTT", type: "Một đáp án", question: "Nhận định nào sau đây là ĐÚNG", options: ["Report TẤT CẢ email phishing thuộc các chiến dịch mô phỏng nhận được trong kỳ về Phòng An ninh thông tin được cộng 0.5 điểm rank", "Mỗi report email phishing thuộc các chiến dịch mô phỏng nhận được trong kỳ về Phòng An ninh thông tin được cộng 0.5 điểm rank", "Không tham gia hoặc không hoàn thành theo quy định các khóa ATTT trong kỳ không ảnh hưởng đến rank", "Báo cáo về hành vi vi phạm ATTT trong VPS được cộng 0.5 điểm"], correct: ["A"] },
+      { id: 30, set: "Bộ cũ", category: "ATTT", type: "Một đáp án", question: "Hiện tại rank ATTT của bạn đang ở mức 1, điều này có nghĩa là gì ?", options: ["Nhận thức ATTT ở mức thấp, CBNV có khả năng bị tấn công khai thác ở mức rất cao", "Nhận thức ATTT ở mức trung bình, CBNV có khả năng bị tấn công khai thác ở mức cao", "Nhận thức ATTT ở mức tốt, CBNV có khả năng bị tấn công khai thác ở mức thấp", "Không có nhận thức về ATTT, CBNV có lỗ hổng ATTT của VPS"], correct: ["D"] },
+      { id: 31, set: "Bổ sung", category: "Email & truy cập", type: "Một đáp án", question: "Tất cả CBNV VPS được phép truy cập thư điện tử VPS trên", options: ["Trình duyệt Web", "Email client (outlook) được cài đặt trên máy tính vật lý/máy VDI mà VPS cấp phát", "Thiết bị di động", "Tất cả đáp án trên"], correct: ["B"] },
+      { id: 32, set: "Bổ sung", category: "Mật khẩu", type: "Một đáp án", question: "Hành động nào sau đây là đúng khi sử dụng mật khẩu", options: ["Tiến hành đổi mật khẩu định kỳ", "Lưu mật khẩu vào quá trình đăng nhập tự động để thuận tiện khi đăng nhập", "Lưu mật khẩu vào Notepad và đặt trong folder chung của phòng", "Sử dụng chung một mật khẩu cho tài khoản đăng nhập máy tính với tài khoản đăng nhập SMO để tránh việc quên mật khẩu"], correct: ["A"] },
+      { id: 33, set: "Bổ sung", category: "Tài khoản", type: "Một đáp án", question: "Việc nào sau đây là đúng khi sử dụng tài khoản, mật khẩu:", options: ["Thay đổi các mật khẩu mặc định", "Sử dụng các user chung", "Sử dụng các user mặc định", "Các đáp trên đều đúng"], correct: ["A"] },
+      { id: 34, set: "Bổ sung", category: "Quyền truy cập", type: "Một đáp án", question: "CBNV chỉ được cấp quyền truy cập trên hệ thống của VPS khi đáp ứng các điều kiện sau", options: ["Đăng ký hợp lệ theo quy trình và được Trưởng đơn vị và KSIT phê duyệt", "Khi được trưởng đơn vị phê duyệt", "Mặc định được cấp quyền truy cập tương đương với các CBNV khác cùng vị trí, không cần phải đăng ký và xin phê duyệt", "Đáp án 1 và 3"], correct: ["A"] },
+      { id: 35, set: "Bổ sung", category: "Rank ATTT", type: "Một đáp án", question: "Cán bộ VPS bị trừ rank ATTT trong tháng khi nào ?", options: ["Có vi phạm ATTT trong tháng", "Bị tấn công thành công trong chiến dịch giả lập của Bộ phận bảo mật trong tháng", "Nhận được phishing email", "Đáp án 1 và 2"], correct: ["D"] },
+      { id: 36, set: "Bổ sung", category: "Mã độc", type: "Một đáp án", question: "Mã độc có thể lây nhiễm vào hệ thống máy tính qua những con đường nào", options: ["USB, web đen, phần mềm không có bản quyền", "Các thư mục chia sẻ, các phần mềm không rõ nguồn gốc", "Ổ cứng di động, thư điện tử", "Cả 3 phương án trên đều đúng"], correct: ["D"] },
+      { id: 37, set: "Bổ sung", category: "Insider threat", type: "Một đáp án", question: "Trường hợp nào sau đây được xem là mối đe dọa từ nội bộ cố tình", options: ["Gửi nhầm email đến một địa chỉ gần giống", "Làm mất laptop do công ty cung cấp", "Xóa folder chứa dữ liệu quan trọng trước khi nghỉ việc", "Nhấn vào đường link phishing"], correct: ["C"] },
+      { id: 38, set: "Bổ sung", category: "Sự cố CNTT", type: "Một đáp án", question: "Hành động nào cần phải báo cho IT ngay lập tức?", options: ["Máy tính xuất hiện thông báo cập nhật bản vá", "Máy tính xuất hiện hướng dẫn đòi tiền chuộc", "Tốc độ mạng chậm hơn bình thường", "Nhận được email ẩn danh"], correct: ["B"] },
+      { id: 39, set: "Bổ sung", category: "Email an toàn", type: "Một đáp án", question: "Anh/chị nhận được một email từ một đồng nghiệp với tệp đính kèm lạ. Anh/chị nên làm gì?", options: ["Mở ngay lập tức vì nó là từ đồng nghiệp", "Quét tệp bằng phần mềm diệt virus trước khi mở", "Chuyển tiếp email cho tất cả mọi người", "Xóa ngay lập tức"], correct: ["B"] },
+      { id: 40, set: "Bổ sung", category: "Social Engineering", type: "Một đáp án", question: "Một nhân viên A mới nhận được yêu cầu từ người quản lý qua phần mềm chat yêu cầu cấp danh sách khách hàng. Người đó nên làm gì?", options: ["Gửi danh sách ngay vì đó là người quản lý", "Xác minh danh tính qua một kênh khác trước khi cấp dữ liệu", "Gửi một phần nhỏ dữ liệu trước rồi đánh giá thêm", "Từ chối vì nghi ngờ"], correct: ["B"] },
+      { id: 41, set: "Bổ sung", category: "Email lừa đảo", type: "Một đáp án", question: "Một email từ 'HR' yêu cầu bạn cập nhật hồ sơ thuế và yêu cầu số CCCD/hộ chiếu trước khi bị phạt. Dấu hiệu nào không phải là lừa đảo", options: ["Email đe dọa có thể bị phạt nếu không thực hiện", "Email từ địa chỉ lạ và không phải từ hệ thống quản lý nhân sự chính thức", "Email yêu cầu bạn nhập vào link và nhập thông tin trực tiếp", "Email được gửi từ địa chỉ chính thức của công ty và có chữ ký đầy đủ"], correct: ["D"] },
+      { id: 42, set: "Bổ sung", category: "Smishing", type: "Một đáp án", question: "Smishing là gì?", options: ["Phishing qua SMS/tin nhắn văn bản, giả mạo danh tính để lấy thông tin hoặc yêu cầu nhấp link độc hại", "Một loại malware được truyền qua email", "Quá trình loại bỏ các tệp nhạy cảm khỏi điện thoại", "Một phương pháp bảo vệ điện thoại di động"], correct: ["A"] },
+      { id: 43, set: "Bổ sung", category: "Social Engineering", type: "Nhiều đáp án", question: "Những yếu tố tâm lý nào thường bị tấn công trong social engineering? (Chọn tất cả đáp án đúng)", options: ["Vội vàng/Khẩn cấp", "Sợ hãi", "Niềm tin vào thẩm quyền", "Mệt mỏi vì phải tuân thủ"], correct: ["A", "B", "C"] },
+      { id: 44, set: "Bổ sung", category: "Vishing", type: "Một đáp án", question: "Phishing khác vishing như thế nào?", options: ["Phishing qua email/tin nhắn, vishing qua điện thoại hoặc cuộc gọi thoại", "Phishing tấn công mạng, vishing tấn công hệ thống", "Phishing là phương pháp cũ, vishing là phương pháp mới", "Không có sự khác biệt, chỉ tên gọi khác"], correct: ["A"] },
+      { id: 45, set: "Bổ sung", category: "ISO 27001", type: "Một đáp án", question: "Mục tiêu chính của ISO/IEC 27001 là:", options: ["Tăng doanh thu", "Bảo vệ tài sản thông tin của tổ chức", "Chuẩn hóa nhân sự", "Phát triển CNTT"], correct: ["B"] },
+      { id: 46, set: "Bổ sung", category: "ISO 27001", type: "Một đáp án", question: "Annex A của ISO/IEC 27001:2022 có bao nhiêu biện pháp kiểm soát?", options: ["114", "100", "93", "120"], correct: ["C"] }
     ];
 
-    const categoryEl = document.getElementById('category');
-    const typeEl = document.getElementById('type');
     const keywordEl = document.getElementById('keyword');
-    const questionNoEl = document.getElementById('questionNo');
     const resultsEl = document.getElementById('results');
     const totalCountEl = document.getElementById('totalCount');
     const resultCountEl = document.getElementById('resultCount');
@@ -216,20 +215,6 @@
 
     const answerChoices = ["tat-ca", "A", "B", "C", "D", "A,B", "A,B,C"];
     let selectedAnswer = "tat-ca";
-
-    function fillSelect(select, values, allLabel) {
-      select.innerHTML = '';
-      const all = document.createElement('option');
-      all.value = 'tat-ca';
-      all.textContent = allLabel;
-      select.appendChild(all);
-      values.forEach(v => {
-        const opt = document.createElement('option');
-        opt.value = v;
-        opt.textContent = v;
-        select.appendChild(opt);
-      });
-    }
 
     function renderAnswerFilters() {
       answerFiltersEl.innerHTML = '';
@@ -248,24 +233,17 @@
 
     function getFiltered() {
       const keyword = keywordEl.value.trim().toLowerCase();
-      const no = questionNoEl.value.trim();
-      const category = categoryEl.value;
-      const type = typeEl.value;
 
       return questions.filter(item => {
         const keywordMatch =
           !keyword ||
           item.question.toLowerCase().includes(keyword) ||
           item.options.some(opt => opt.toLowerCase().includes(keyword)) ||
-          item.category.toLowerCase().includes(keyword) ||
           item.correct.join(',').toLowerCase().includes(keyword);
 
-        const noMatch = !no || String(item.id) === no;
-        const categoryMatch = category === 'tat-ca' || item.category === category;
-        const typeMatch = type === 'tat-ca' || item.type === type;
         const answerMatch = selectedAnswer === 'tat-ca' || item.correct.join(',') === selectedAnswer;
 
-        return keywordMatch && noMatch && categoryMatch && typeMatch && answerMatch;
+        return keywordMatch && answerMatch;
       });
     }
 
@@ -276,7 +254,7 @@
       resultsEl.innerHTML = '';
 
       if (!filtered.length) {
-        resultsEl.innerHTML = '<div class="empty"><h3>Không tìm thấy kết quả phù hợp</h3><div class="muted">Thử thay đổi từ khóa hoặc xóa bớt bộ lọc.</div></div>';
+        resultsEl.innerHTML = '<div class="empty"><h3>Không tìm thấy kết quả phù hợp</h3><div class="muted">Thử thay đổi từ khóa hoặc đáp án.</div></div>';
         return;
       }
 
@@ -288,6 +266,7 @@
         badges.className = 'badges';
         badges.innerHTML = `
           <span class="badge">Câu ${item.id}</span>
+          <span class="badge set">${item.set}</span>
           <span class="badge cat">${item.category}</span>
           <span class="badge type">${item.type}</span>
           <span class="badge answer">Đáp án: ${item.correct.join(', ')}</span>
@@ -315,17 +294,9 @@
       });
     }
 
-    const categories = [...new Set(questions.map(q => q.category))];
-    const types = [...new Set(questions.map(q => q.type))];
-    fillSelect(categoryEl, categories, 'Tất cả nhóm');
-    fillSelect(typeEl, types, 'Tất cả loại');
-
-    [categoryEl, typeEl, keywordEl, questionNoEl].forEach(el => el.addEventListener('input', render));
+    keywordEl.addEventListener('input', render);
     resetBtn.addEventListener('click', () => {
       keywordEl.value = '';
-      questionNoEl.value = '';
-      categoryEl.value = 'tat-ca';
-      typeEl.value = 'tat-ca';
       selectedAnswer = 'tat-ca';
       renderAnswerFilters();
       render();
